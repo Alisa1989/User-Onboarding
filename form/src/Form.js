@@ -1,37 +1,37 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import axios from 'axios';
 
 const formSchema = yup.object().shape({
-    name: yup.string().required("Must input a name"),
-    email: yup.string().email("Must be a valid email address").required("Must input an email"),
-    password: yup.string().required("Must input a password"),
-    program: yup.string(),
-    details: yup.string(),
-    terms: yup.boolean().oneOf([true], "Read and Agree terms of use")
+  name: yup.string().required("Must input a name"),
+  email: yup.string().email("Must be a valid email address").required("Must input an email"),
+  password: yup.string().required("Must input a password"),
+  program: yup.string(),
+  details: yup.string(),
+  terms: yup.boolean().oneOf([true], "Read and Agree terms of use")
 });
 
-const Form = () => {
+const Form = (props) => {
 
-const [formState, setFormState] = useState({
+  const [formState, setFormState] = useState({
     name: "",
     email: "",
     password: "",
     program: "",
     details: "",
     terms: false
-});
+  });
 
-const [errorState, setErrorState] = useState({
+  const [errorState, setErrorState] = useState({
     name: "",
     email: "",
     password: "",
     program: "",
     details: "",
     terms: ""
-})
+  })
 
-const validate = e => {
+  const validate = e => {
     yup
       .reach(formSchema, e.target.name)
       .validate(e.target.value)
@@ -49,69 +49,77 @@ const validate = e => {
       });
   };
 
-const inputChange = e => {
+  const inputChange = e => {
     e.persist();
     console.log("input changed", e.target.value, e.target.checked);
     validate(e);
     let value =
-        e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    setFormState({...formState, [e.target.name]: value});
-}
+      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setFormState({ ...formState, [e.target.name]: value });
+  }
 
-const formSubmit = e => {
+  const formSubmit = e => {
     e.preventDefault();
-    console.log("form submitted");
-    axios
-      .post("https://reqres.in/api/users", formState)
-      .then(response => console.log(response))
-      .catch(err => console.log(err));
-}
 
-    return (
-    <form>
-        <label>
-            Name
+    formSchema.isValid(formState).then(valid => {
+      if (valid) {
+        console.log("form submitted");
+        axios
+          .post("https://reqres.in/api/users", formState)
+          .then(response => console.log(response))
+          .catch(err => console.log(err));
+        props.addUser(formState);
+      } else {
+        console.log("form not complete");
+      }
+    })
+  }
+
+  return (
+    <form onSubmit={formSubmit}>
+      <label>
+        Name
             <input
-            type="text"
-            name="name"
-            id="name"
-            placeholder="Name"
-            value={formState.name}
-            onChange={inputChange}
-            />
-            {errorState.name.length > 0 ? (     
+          type="text"
+          name="name"
+          id="name"
+          placeholder="Name"
+          value={formState.name}
+          onChange={inputChange}
+        />
+        {errorState.name.length > 0 ? (
           <p className="error">{errorState.name}</p>
         ) : null}
-        </label>
-        <label>
-            Email
+      </label>
+      <label>
+        Email
             <input
-            type="email"
-            name="email"
-            id="email"
-            placeholder="Input Email"
-            value={formState.email}
-            onChange={inputChange}
-            />
-            {errorState.email.length > 0 ? (
+          type="email"
+          name="email"
+          id="email"
+          placeholder="Input Email"
+          value={formState.email}
+          onChange={inputChange}
+        />
+        {errorState.email.length > 0 ? (
           <p className="error">{errorState.email}</p>
         ) : null}
-        </label>
-        <label>
-            Password
+      </label>
+      <label>
+        Password
             <input
-            type="password"
-            name="password"
-            id="password"
-            placeholder="Input Password"
-            value={formState.password}
-            onChange={inputChange}
-            />
-            {errorState.password.length > 0 ? (
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Input Password"
+          value={formState.password}
+          onChange={inputChange}
+        />
+        {errorState.password.length > 0 ? (
           <p className="error">{errorState.password}</p>
         ) : null}
-        </label>
-        <label htmlFor="program">
+      </label>
+      <label htmlFor="program">
         What program are you interested in?
         <select
           name="program"
@@ -148,7 +156,7 @@ const formSubmit = e => {
       </label>
       <button>Submit</button>
     </form>
-     );
- }
+  );
+}
 
 export default Form;
