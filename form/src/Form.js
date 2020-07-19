@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import * as yup from 'yup';
-//import yup from 'yup'
+import axios from 'axios';
 
 const formSchema = yup.object().shape({
     name: yup.string().required("Must input a name"),
     email: yup.string().email("Must be a valid email address").required("Must input an email"),
-    password: yup.required("Must input a password"),
+    password: yup.string().required("Must input a password"),
     program: yup.string(),
     details: yup.string(),
     terms: yup.boolean().oneOf([true], "Read and Agree terms of use")
@@ -31,28 +31,28 @@ const [errorState, setErrorState] = useState({
     terms: ""
 })
 
-// const validate = e => {
-//     yup
-//       .reach(formSchema, e.target.name)
-//       .validate(e.target.value)
-//       .then(valid => {
-//         setErrorState({
-//           ...errorState,
-//           [e.target.name]: ""
-//         });
-//       })
-//       .catch(err => {
-//         setErrorState({
-//           ...errorState,
-//           [e.target.name]: err.errors[0]
-//         });
-//       });
-//   };
+const validate = e => {
+    yup
+      .reach(formSchema, e.target.name)
+      .validate(e.target.value)
+      .then(valid => {
+        setErrorState({
+          ...errorState,
+          [e.target.name]: ""
+        });
+      })
+      .catch(err => {
+        setErrorState({
+          ...errorState,
+          [e.target.name]: err.errors[0]
+        });
+      });
+  };
 
 const inputChange = e => {
     e.persist();
     console.log("input changed", e.target.value, e.target.checked);
-    //validate(e);
+    validate(e);
     let value =
         e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setFormState({...formState, [e.target.name]: value});
@@ -61,11 +61,13 @@ const inputChange = e => {
 const formSubmit = e => {
     e.preventDefault();
     console.log("form submitted");
-    
+    axios
+      .post("https://reqres.in/api/users", formState)
+      .then(response => console.log(response))
+      .catch(err => console.log(err));
 }
 
     return (
-       // <h1>mama jama</h1>
     <form>
         <label>
             Name
@@ -77,7 +79,7 @@ const formSubmit = e => {
             value={formState.name}
             onChange={inputChange}
             />
-            {errorState.name.length > 0 ? (
+            {errorState.name.length > 0 ? (     
           <p className="error">{errorState.name}</p>
         ) : null}
         </label>
