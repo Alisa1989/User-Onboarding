@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import axios from 'axios';
 
 const formSchema = yup.object().shape({
-  name: yup.string().required("Must input a name"),
+  name: yup.string().required("Must input a name").min(2, "error: Must be a valid name"),
   email: yup.string().email("Must be a valid email address").required("Must input an email"),
   password: yup.string().required("Must input a password"),
   program: yup.string(),
